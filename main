@@ -1,0 +1,31 @@
+import lxml
+import requests
+from bs4 import BeautifulSoup
+import smtplib
+MY_EMAIL="oyeludeferanmi@gmail.com"
+product=input("Enter the name of the product you want to track. Go to Amazon and copy the exact name: ")
+base_price=float(input("Enter the base price which you would like to buy the product (All numbers are in dollars): "))
+email_address=input("Enter your email address to recieve a notification: ")
+url=f"https://www.amazon.com/{product}/dp/B09VD33WHW/ref=sr_1_3?dib=eyJ2IjoiMSJ9.NEXSsDKp29JYOA7kP98sjYGm1jaY2QBVnJ9l7wuZ4QF7orDOq9jsNTjwn1n7A82CDOSrXkoAKZXCdGm_2obZwxEw6xT3kjyAJUDijrqidwRDeZhHBBAjQOW_kw0bm1V_lM0SDZnLol5pWYaJI24-EEGipMGmX2dUnxfyIULOuqzFzwpQyh_UXdy3f8eovrPvFhicGXrmVjbnl-sagJLBXd0nJT9GjNN5dUGCZczp0dw.ThuWST2uiINghLK1NsKBQxfZAAsrHEsdqIVJDIlBHxo&dib_tag=se&keywords=s22%2Bultra&qid=1761078297&sr=8-3&th=1"
+headers={
+    "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "Accept-Language":"en-US,en;q=0.9"
+}
+
+response=requests.get(url=url, headers=headers)
+response.raise_for_status()
+data=response.text
+content=BeautifulSoup(data, "lxml")
+price=content.find(name="span", class_="a-offscreen").get_text().split("$")[1]
+price=float(price)
+def email():
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(user="oyeludeferanmi@gmail.com", password=PASSWORD)
+            connection.sendmail(
+                  from_addr=MY_EMAIL,
+                  to_addrs=email_address,
+                  msg=f"Subject: Urgent Notification About {product}\n\n You asked us to help you keep track for you and we did. We are happy to let you know {product} is now available for ${price} on Amazon.\n Add it to your cart and order rightaway! \n Happy shopping!"
+                                )
+if price <= base_price:
+    email()
